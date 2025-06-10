@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wood Texture Puzzle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #D2B48C;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        .puzzle-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .wood-segment {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(139, 69, 19, 0.3);
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .wood-segment:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border-color: rgba(139, 69, 19, 0.6);
+        }
+
+        .wood-segment.positioned {
+            cursor: default;
+            transform: none !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .wood-segment.positioned:hover {
+            transform: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .grid-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 2px;
+            width: 600px;
+            height: 600px;
+            pointer-events: none;
+            opacity: 0; /* Hidden grid for positioning reference only */
+        }
+
+        .grid-cell {
+            /* Grid cells are now invisible */
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #F5E6D3;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close {
+            color: #8B4513;
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            margin: -10px -10px 0 0;
+        }
+
+        .close:hover {
+            color: #A0522D;
+        }
+
+        .modal h2 {
+            color: #8B4513;
+            margin-bottom: 20px;
+            font-size: 24px;
+            border-bottom: 2px solid #D2B48C;
+            padding-bottom: 10px;
+        }
+
+        .modal p {
+            color: #654321;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .grid-container {
+                width: 90vw;
+                height: 90vw;
+                max-width: 500px;
+                max-height: 500px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="puzzle-container" id="puzzleContainer">
+        <!-- Grid container for target positions -->
+        <div class="grid-container">
+            <div class="grid-cell" data-position="0"></div>
+            <div class="grid-cell" data-position="1"></div>
+            <div class="grid-cell" data-position="2"></div>
+            <div class="grid-cell" data-position="3"></div>
+            <div class="grid-cell" data-position="4"></div>
+            <div class="grid-cell" data-position="5"></div>
+            <div class="grid-cell" data-position="6"></div>
+            <div class="grid-cell" data-position="7"></div>
+            <div class="grid-cell" data-position="8"></div>
+        </div>
+    </div>
+
+    <!-- Modal for segment write-ups -->
+    <div id="segmentModal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h2 id="modalTitle">Wood Segment Details</h2>
+            <p id="modalText">Segment information will appear here.</p>
+        </div>
+    </div>
+
+    <script>
+        // Segment data with placeholder content
+        // TO ADD YOUR IMAGES: Replace the imageUrl property with your actual image paths
+        const segmentData = [
+            {
+                id: 0,
+                title: "Diagonal Grain Pattern",
+                writeup: "This segment showcases a beautiful diagonal wood grain pattern, demonstrating the natural growth patterns found in hardwood timber. The intersecting lines create a dynamic visual texture.",
+                link: "https://placeholder-link-1.com",
+                dimensions: { width: 180, height: 120 },
+                imageUrl: "data:image/jpeg;base64,YOUR_BASE64_IMAGE_HERE_SEGMENT_0" // Replace with your image
+            },
+            {
+                id: 1,
+                title: "Horizontal Planking",
+                writeup: "Classic horizontal wood planking reveals the traditional construction methods used in carpentry. Each plank tells a story of craftsmanship and natural wood beauty.",
+                link: "https://placeholder-link-2.com",
+                dimensions: { width: 200, height: 140 },
+                imageUrl: "data:image/jpeg;base64,YOUR_BASE64_IMAGE_HERE_SEGMENT_1" // Replace with your image
+            },
+            {
+                id: 2,
+                title: "Tree Ring Circular Pattern",
+                writeup: "The concentric circles in this segment represent the annual growth rings of a tree, each ring marking a year in the tree's life and the environmental conditions it experienced.",
+                link: "https://placeholder-link-3.com",
+                dimensions: { width: 160, height: 160 },
+                imageUrl: "data:image/jpeg;base64,YOUR_BASE64_IMAGE_HERE_SEGMENT_2" // Replace with your image
+            },
+            {
+                id: 3,
+                title: "Radial Growth Rings",
+                writeup: "Another perspective of tree growth rings, showing how the wood fibers radiate outward from the center. This pattern is prized by woodworkers for its natural beauty.",
+                link: "https://placeholder-link-4.com",
+                dimensions: { width: 170, height: 150 },
+                imageUrl: "data:image/jpeg;base64,YOUR_BASE64_IMAGE_HERE_SEGMENT_3" // Replace with your image
+            },
+            {
+                id: 4,
+                title: "Vertical Wood Slats",
+                writeup: "Uniform vertical wood slats demonstrate precision in woodworking. This pattern is commonly used in modern architectural design for both interior and exterior applications.",
+                link: "https://placeholder-link-5.com",
+                dimensions: { width: 190, height: 130 },
+                imageUrl: "data:image/jpeg;base64,YOUR_BASE64_IMAGE_HERE_SEGMENT_4" // Replace with your image
+            },
+            {
+                id: 5,
+                title: "Chevron Wood Pattern",
+                writeup: "The chevron or V-shaped pattern in wood grain creates visual interest and is often sought after in decorative woodworking and flooring applications.",
+                link: "https://placeholder-link-6.com",
+                dimensions: { width: 175, height: 145 },
+                imageUrl: "data:image/jpeg;base64,YOUR_BASE64_IMAGE_HERE_SEGMENT_5" // Replace with your image
+            },
+            {
+                id: 6,
+                title: "Concentric Tree Rings",
+                writeup: "This segment displays the natural concentric pattern of tree growth, where each ring represents seasonal growth cycles. The varying thickness tells the story of good and challenging growing years.",
+                link: "https://placeholder-link-7.com",
+                dimensions: { width: 165, height: 155 },
+                imageUrl: "data:image/jpeg;base64,YOUR_BASE64_IMAGE_HERE_SEGMENT_6" // Replace with your image
+            },
+            {
+                id: 7,
+                title: "Angled Wood Grain",
+                writeup: "Angled wood grain patterns occur naturally as trees respond to environmental stresses. These unique patterns are highly valued in fine woodworking for their distinctive appearance.",
+                link: "https://placeholder-link-8.com",
+                dimensions: { width: 185, height: 125 },
+                imageUrl: "data:image/jpeg;base64,YOUR_BASE64_IMAGE_HERE_SEGMENT_7" // Replace with your image
+            },
+            {
+                id: 8,
+                title: "Cross-Section Growth Pattern",
+                writeup: "The final segment shows a cross-sectional view of wood growth, revealing the complex internal structure that gives wood its strength and unique character in construction and crafting.",
+                link: "https://placeholder-link-9.com",
+                dimensions: { width: 155, height: 165 },
+                imageUrl: "data:image/jpeg;base64,YOUR_BASE64_IMAGE_HERE_SEGMENT_8" // Replace with your image
+            }
+        ];
+
+        // State tracking
+        let positionedSegments = 0;
+        const segmentPositions = new Array(9).fill(false);
+
+        // Modal elements
+        const modal = document.getElementById('segmentModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalText = document.getElementById('modalText');
+        const closeBtn = document.getElementsByClassName('close')[0];
+        const completionMessage = document.getElementById('completionMessage');
+
+        // Fisher-Yates (aka Knuth) Shuffle to randomize the array
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+
+            // While there remain elements to shuffle.
+            while (currentIndex > 0) {
+                // Pick a remaining element.
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+
+                // And swap it with the current element.
+                [array[currentIndex], array[randomIndex]] = [
+                    array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+
+        // Initialize puzzle
+        function initializePuzzle() {
+            // Randomize the order of segments each time the puzzle is initialized
+            shuffle(segmentData);
+            
+            const container = document.getElementById('puzzleContainer');
+            const gridContainer = document.querySelector('.grid-container');
+            const gridRect = gridContainer.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+
+            segmentData.forEach((segment, index) => {
+                const segmentDiv = document.createElement('div');
+                segmentDiv.className = 'wood-segment';
+                segmentDiv.id = `segment-${segment.id}`;
+                segmentDiv.dataset.segmentId = segment.id;
+
+                // Set dimensions
+                segmentDiv.style.width = segment.dimensions.width + 'px';
+                segmentDiv.style.height = segment.dimensions.height + 'px';
+
+                // Use actual image if provided, otherwise fallback to CSS pattern
+                if (segment.imageUrl && segment.imageUrl !== "data:image/jpeg;base64,YOUR_BASE64_IMAGE_HERE_SEGMENT_" + segment.id) {
+                    segmentDiv.style.backgroundImage = `url(${segment.imageUrl})`;
+                    segmentDiv.style.backgroundSize = 'cover';
+                    segmentDiv.style.backgroundPosition = 'center';
+                    segmentDiv.style.backgroundRepeat = 'no-repeat';
+                } else {
+                    // Fallback to CSS pattern
+                    const pattern = createWoodPattern(segment.id);
+                    segmentDiv.style.background = pattern;
+                }
+
+                // Random initial position (avoiding overlap with grid)
+                let validPosition = false;
+                let attempts = 0;
+                while (!validPosition && attempts < 50) {
+                    const x = Math.random() * (containerRect.width - segment.dimensions.width);
+                    const y = Math.random() * (containerRect.height - segment.dimensions.height);
+                    
+                    // Check if position overlaps with grid area
+                    const gridLeft = gridRect.left - containerRect.left - 50;
+                    const gridRight = gridRect.right - containerRect.left + 50;
+                    const gridTop = gridRect.top - containerRect.top - 50;
+                    const gridBottom = gridRect.bottom - containerRect.top + 50;
+                    
+                    if (x + segment.dimensions.width < gridLeft || x > gridRight || 
+                        y + segment.dimensions.height < gridTop || y > gridBottom) {
+                        segmentDiv.style.left = x + 'px';
+                        segmentDiv.style.top = y + 'px';
+                        validPosition = true;
+                    }
+                    attempts++;
+                }
+
+                // Fallback position if no valid position found
+                if (!validPosition) {
+                    segmentDiv.style.left = (50 + (index * 30)) + 'px';
+                    segmentDiv.style.top = (50 + (index * 20)) + 'px';
+                }
+
+                // Add click event
+                segmentDiv.addEventListener('click', () => handleSegmentClick(segment.id));
+
+                container.appendChild(segmentDiv);
+            });
+        }
+
+        // Create wood texture patterns
+        function createWoodPattern(segmentId) {
+            const patterns = [
+                // Diagonal grain
+                'linear-gradient(45deg, #8B4513 1px, transparent 1px), linear-gradient(-45deg, #A0522D 1px, transparent 1px), #D2B48C',
+                // Horizontal planks
+                'repeating-linear-gradient(0deg, #8B4513, #8B4513 2px, #D2B48C 2px, #D2B48C 20px)',
+                // Circular rings
+                'radial-gradient(circle, #8B4513 1px, transparent 1px, transparent 15px, #A0522D 16px, transparent 17px), #D2B48C',
+                // Radial growth
+                'radial-gradient(ellipse, #8B4513 1px, transparent 1px, transparent 12px, #A0522D 13px, transparent 14px), #DEB887',
+                // Vertical slats
+                'repeating-linear-gradient(90deg, #8B4513, #8B4513 3px, #D2B48C 3px, #D2B48C 25px)',
+                // Chevron
+                'linear-gradient(45deg, #8B4513 25%, transparent 25%), linear-gradient(-45deg, #A0522D 25%, transparent 25%), #D2B48C',
+                // Concentric rings
+                'radial-gradient(circle, transparent 10px, #8B4513 11px, #8B4513 12px, transparent 13px, transparent 25px, #A0522D 26px, #A0522D 27px, transparent 28px), #DEB887',
+                // Angled grain
+                'linear-gradient(30deg, #8B4513 1px, transparent 1px), linear-gradient(150deg, #A0522D 1px, transparent 1px), #D2B48C',
+                // Cross-section
+                'radial-gradient(ellipse 60px 40px, #8B4513 1px, transparent 1px, transparent 8px, #A0522D 9px, transparent 10px), #DEB887'
+            ];
+            return patterns[segmentId] || patterns[0];
+        }
+
+        // Handle segment click
+        function handleSegmentClick(segmentId) {
+            const segment = segmentData.find(s => s.id === segmentId);
+            const segmentDiv = document.getElementById(`segment-${segmentId}`);
+
+            // Show modal
+            modalTitle.textContent = segment.title;
+            modalText.textContent = segment.writeup;
+            modal.style.display = 'block';
+
+            // Move to grid position if not already positioned
+            if (!segmentPositions[segmentId]) {
+                moveToGridPosition(segmentId);
+            }
+        }
+
+        // Move segment to grid position
+        function moveToGridPosition(segmentId) {
+            const segmentDiv = document.getElementById(`segment-${segmentId}`);
+            const gridContainer = document.querySelector('.grid-container');
+            const gridRect = gridContainer.getBoundingClientRect();
+            const containerRect = document.getElementById('puzzleContainer').getBoundingClientRect();
+            
+            // Find the segment's data by ID to get its dimensions
+            const segment = segmentData.find(s => s.id === segmentId);
+
+            // Calculate grid position
+            const row = Math.floor(segmentId / 3);
+            const col = segmentId % 3;
+            const cellWidth = gridRect.width / 3;
+            const cellHeight = gridRect.height / 3;
+
+            const targetX = (gridRect.left - containerRect.left) + (col * cellWidth) + (cellWidth - segment.dimensions.width) / 2;
+            const targetY = (gridRect.top - containerRect.top) + (row * cellHeight) + (cellHeight - segment.dimensions.height) / 2;
+
+            // Animate to position
+            segmentDiv.style.left = targetX + 'px';
+            segmentDiv.style.top = targetY + 'px';
+            segmentDiv.classList.add('positioned');
+
+            // Update state
+            segmentPositions[segmentId] = true;
+            positionedSegments++;
+
+            // Check if puzzle is complete
+            if (positionedSegments === 9) {
+                setTimeout(() => {
+                    completionMessage.style.display = 'block';
+                    setTimeout(() => {
+                        completionMessage.style.display = 'none';
+                    }, 3000);
+                }, 600);
+            }
+        }
+
+        // Modal event handlers
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Initialize puzzle on load
+        window.onload = initializePuzzle;
+
+        // Handle window resize
+        window.onresize = function() {
+            // Recalculate positions for positioned segments
+            segmentData.forEach(segment => {
+                if (segmentPositions[segment.id]) {
+                    const segmentDiv = document.getElementById(`segment-${segment.id}`);
+                    segmentDiv.classList.remove('positioned');
+                    setTimeout(() => {
+                        moveToGridPosition(segment.id);
+                    }, 100);
+                }
+            });
+        };
+    </script>
+</body>
+</html>
