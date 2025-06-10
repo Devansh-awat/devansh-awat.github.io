@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wood Texture Interactive Artifact</title>
+    <title>Interactive Artifact</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,8 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #D2B48C;
+            background-color: #333; /* Darker background for contrast */
+            color: #eee;
             overflow: hidden;
             height: 100vh;
             position: relative;
@@ -29,9 +30,9 @@
             position: absolute;
             cursor: pointer;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid rgba(139, 69, 19, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 4px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -39,19 +40,21 @@
 
         .wood-segment:hover {
             transform: scale(1.05);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-            border-color: rgba(139, 69, 19, 0.6);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+            border-color: rgba(255, 255, 255, 0.6);
         }
 
         .wood-segment.positioned {
             cursor: default;
             transform: none !important;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
         }
 
         .wood-segment.positioned:hover {
             transform: none;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
         }
 
         .grid-container {
@@ -62,9 +65,9 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
-            gap: 2px;
-            width: 600px;
-            height: 600px;
+            gap: 5px; /* Increased gap */
+            width: 700px; /* Slightly larger grid */
+            height: 700px;
             pointer-events: none;
         }
 
@@ -86,7 +89,7 @@
         }
 
         .modal-content {
-            background-color: #F5E6D3;
+            background-color: #444;
             margin: 10% auto;
             padding: 30px;
             border-radius: 15px;
@@ -95,6 +98,7 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             position: relative;
             animation: modalSlideIn 0.3s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         @keyframes modalSlideIn {
@@ -109,7 +113,7 @@
         }
 
         .close {
-            color: #8B4513;
+            color: #ccc;
             float: right;
             font-size: 32px;
             font-weight: bold;
@@ -119,19 +123,19 @@
         }
 
         .close:hover {
-            color: #A0522D;
+            color: #fff;
         }
 
         .modal h2 {
-            color: #8B4513;
+            color: #eee;
             margin-bottom: 20px;
             font-size: 24px;
-            border-bottom: 2px solid #D2B48C;
+            border-bottom: 2px solid #555;
             padding-bottom: 10px;
         }
 
         .modal p {
-            color: #654321;
+            color: #ddd;
             line-height: 1.6;
             font-size: 16px;
         }
@@ -141,8 +145,6 @@
             .grid-container {
                 width: 90vw;
                 height: 90vw;
-                max-width: 500px;
-                max-height: 500px;
             }
             
             .modal-content {
@@ -173,25 +175,24 @@
     <div id="segmentModal" class="modal">
         <div class="modal-content">
             <span class="close">×</span>
-            <h2 id="modalTitle">Wood Segment Details</h2>
-            <p id="modalText">Segment information will appear here.</p>
+            <h2 id="modalTitle">Segment Details</h2>
+            <p id="modalText">Information will appear here.</p>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Updated segment data with new images and generic text
             const segmentData = [
-                // NOTE: The 'dimensions' property has been removed.
-                // The imageUrls have been updated to direct image links.
-                { id: 0, title: "Wood Pattern 1", writeup: "This segment showcases a beautiful diagonal wood grain pattern.", imageUrl: "https://i.ibb.co/9v0F7v7/wood1.jpg" },
-                { id: 1, title: "Wood Pattern 2", writeup: "Classic horizontal wood planking reveals traditional construction.", imageUrl: "https://i.ibb.co/hK2j3xZ/wood2.jpg" },
-                { id: 2, title: "Wood Pattern 3", writeup: "Concentric circles represent the annual growth rings of a tree.", imageUrl: "https://i.ibb.co/T1jH1fJ/wood3.jpg" },
-                { id: 3, title: "Wood Pattern 4", writeup: "Another perspective of tree growth rings.", imageUrl: "https://i.ibb.co/MPrDbX8/wood4.jpg" },
-                { id: 4, title: "Wood Pattern 5", writeup: "Uniform vertical wood slats demonstrate precision woodworking.", imageUrl: "https://i.ibb.co/4Zg7QY7/wood5.jpg" },
-                { id: 5, title: "Wood Pattern 6", writeup: "The chevron or V-shaped pattern in wood grain creates visual interest.", imageUrl: "https://i.ibb.co/yQvQJ0Y/wood6.jpg" },
-                { id: 6, title: "Wood Pattern 7", writeup: "This segment displays the natural concentric pattern of tree growth.", imageUrl: "https://i.ibb.co/Fqsx1M6/wood7.jpg" },
-                { id: 7, title: "Wood Pattern 8", writeup: "Angled wood grain patterns occur naturally as trees respond to stress.", imageUrl: "https://i.ibb.co/YhWfJc9/wood8.jpg" },
-                { id: 8, title: "Wood Pattern 9", writeup: "The final segment shows a cross-sectional view of wood growth.", imageUrl: "https://i.ibb.co/98rSj2K/wood9.jpg" }
+                { id: 0, title: "Segment 1", writeup: "This is the first segment of the artifact.", imageUrl: "https://i.ibb.co/Ndh96Djk/Untitled.png" },
+                { id: 1, title: "Segment 2", writeup: "This is the second segment of the artifact.", imageUrl: "https://i.ibb.co/HTHLVxxF/Untitled-2.png" },
+                { id: 2, title: "Segment 3", writeup: "This is the third segment of the artifact.", imageUrl: "https://i.ibb.co/8nFm9PbW/Untitled-3.png" },
+                { id: 3, title: "Segment 4", writeup: "This is the fourth segment of the artifact.", imageUrl: "https://i.ibb.co/7DFTq7J/Untitled-4.png" },
+                { id: 4, title: "Segment 5", writeup: "This is the fifth segment of the artifact.", imageUrl: "https://i.ibb.co/21wbsZ1B/Untitled-5.png" },
+                { id: 5, title: "Segment 6", writeup: "This is the sixth segment of the artifact.", imageUrl: "https://i.ibb.co/3mN1bJ8y/Untitled-6.png" },
+                { id: 6, title: "Segment 7", writeup: "This is the seventh segment of the artifact.", imageUrl: "https://i.ibb.co/Kx9rh0kh/Untitled-7.png" },
+                { id: 7, title: "Segment 8", writeup: "This is the eighth segment of the artifact.", imageUrl: "https://i.ibb.co/pBtxndB0/Untitled-9.png" },
+                { id: 8, title: "Segment 9", writeup: "This is the ninth segment of the artifact.", imageUrl: "https://i.ibb.co/7dbqqW8g/Untitled-8.png" }
             ];
 
             let positionedSegments = 0;
@@ -212,13 +213,11 @@
                 return array;
             }
 
-            // Function to load an image and return its dimensions
             function loadImage(segment) {
                 return new Promise((resolve, reject) => {
                     const img = new Image();
                     img.src = segment.imageUrl;
                     img.onload = () => {
-                        // Add the loaded dimensions to the segment object
                         segment.width = img.naturalWidth;
                         segment.height = img.naturalHeight;
                         resolve(segment);
@@ -229,10 +228,7 @@
 
             async function initializeArtifact() {
                 shuffle(segmentData);
-                
-                // Load all images and get their dimensions before proceeding
                 const loadedSegments = await Promise.all(segmentData.map(loadImage));
-
                 const container = document.getElementById('puzzleContainer');
                 const gridContainer = document.querySelector('.grid-container');
                 const containerRect = container.getBoundingClientRect();
@@ -245,22 +241,17 @@
                     segmentDiv.style.height = segment.height + 'px';
                     segmentDiv.style.backgroundImage = `url(${segment.imageUrl})`;
 
-                    // Position the segments randomly outside the central grid
                     const gridRect = gridContainer.getBoundingClientRect();
                     let validPosition = false;
                     let attempts = 0;
                     while (!validPosition && attempts < 50) {
                         const x = Math.random() * (containerRect.width - segment.width);
                         const y = Math.random() * (containerRect.height - segment.height);
-                        
                         const gridLeft = gridRect.left - containerRect.left;
                         const gridRight = gridRect.right - containerRect.left;
                         const gridTop = gridRect.top - containerRect.top;
                         const gridBottom = gridRect.bottom - containerRect.top;
-                        
-                        // Check for overlap with a slightly expanded grid area
-                        if (x + segment.width < gridLeft - 10 || x > gridRight + 10 || 
-                            y + segment.height < gridTop - 10 || y > gridBottom + 10) {
+                        if (x + segment.width < gridLeft - 10 || x > gridRight + 10 || y + segment.height < gridTop - 10 || y > gridBottom + 10) {
                             segmentDiv.style.left = x + 'px';
                             segmentDiv.style.top = y + 'px';
                             validPosition = true;
@@ -268,12 +259,10 @@
                         attempts++;
                     }
 
-                    // Fallback positioning if a valid random spot isn't found
                     if (!validPosition) {
                         segmentDiv.style.left = (20 + (index * 20)) + 'px';
                         segmentDiv.style.top = (20 + (index * 20)) + 'px';
                     }
-
                     segmentDiv.addEventListener('click', () => handleSegmentClick(segment));
                     container.appendChild(segmentDiv);
                 });
@@ -283,7 +272,6 @@
                 modalTitle.textContent = segment.title;
                 modalText.textContent = segment.writeup;
                 modal.style.display = 'block';
-
                 if (!segmentPositions[segment.id]) {
                     moveToGridPosition(segment);
                 }
@@ -296,25 +284,20 @@
                 const gridContainer = document.querySelector('.grid-container');
                 const gridRect = gridContainer.getBoundingClientRect();
                 const containerRect = document.getElementById('puzzleContainer').getBoundingClientRect();
-                
                 const row = Math.floor(segment.id / 3);
                 const col = segment.id % 3;
                 const cellWidth = gridRect.width / 3;
                 const cellHeight = gridRect.height / 3;
-
-                // Center the segment within its target grid cell
                 const targetX = (gridRect.left - containerRect.left) + (col * cellWidth) + (cellWidth - segment.width) / 2;
                 const targetY = (gridRect.top - containerRect.top) + (row * cellHeight) + (cellHeight - segment.height) / 2;
 
                 segmentDiv.style.left = targetX + 'px';
                 segmentDiv.style.top = targetY + 'px';
                 segmentDiv.classList.add('positioned');
-                
                 if (!segmentPositions[segment.id]) {
                     segmentPositions[segment.id] = true;
                     positionedSegments++;
                 }
-
                 if (positionedSegments === 9) {
                     console.log("All segments positioned!");
                 }
