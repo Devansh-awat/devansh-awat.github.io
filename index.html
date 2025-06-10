@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wood Texture Puzzle</title>
+    <title>Wood Texture Interactive Artifact</title>
     <style>
         * {
             margin: 0;
@@ -66,11 +66,10 @@
             width: 600px;
             height: 600px;
             pointer-events: none;
-            opacity: 0; /* Hidden grid for positioning reference only */
         }
 
         .grid-cell {
-            /* Grid cells are now invisible */
+           /* Grid cells are invisible but used for positioning */
         }
 
         /* Modal Styles */
@@ -137,8 +136,6 @@
             font-size: 16px;
         }
 
-
-
         /* Responsive Design */
         @media (max-width: 768px) {
             .grid-container {
@@ -182,201 +179,164 @@
     </div>
 
     <script>
-        // Segment data with your images
-        const segmentData = [
-            {
-                id: 0,
-                title: "Wood Pattern 1",
-                writeup: "This segment showcases a beautiful diagonal wood grain pattern, demonstrating the natural growth patterns found in hardwood timber.",
-                dimensions: { width: 180, height: 120 },
-                imageUrl: "https://i.ibb.co/GcV1PzP"
-            },
-            {
-                id: 1,
-                title: "Wood Pattern 2",
-                writeup: "Classic horizontal wood planking reveals the traditional construction methods used in carpentry.",
-                dimensions: { width: 200, height: 140 },
-                imageUrl: "https://i.ibb.co/Jq0tY8x"
-            },
-            {
-                id: 2,
-                title: "Wood Pattern 3",
-                writeup: "The concentric circles in this segment represent the annual growth rings of a tree.",
-                dimensions: { width: 160, height: 160 },
-                imageUrl: "https://i.ibb.co/YyYf8Dk"
-            },
-            {
-                id: 3,
-                title: "Wood Pattern 4",
-                writeup: "Another perspective of tree growth rings, showing how the wood fibers radiate outward from the center.",
-                dimensions: { width: 170, height: 150 },
-                imageUrl: "https://i.ibb.co/M6VjN8B"
-            },
-            {
-                id: 4,
-                title: "Wood Pattern 5",
-                writeup: "Uniform vertical wood slats demonstrate precision in woodworking.",
-                dimensions: { width: 190, height: 130 },
-                imageUrl: "https://i.ibb.co/j3gQhNf"
-            },
-            {
-                id: 5,
-                title: "Wood Pattern 6",
-                writeup: "The chevron or V-shaped pattern in wood grain creates visual interest.",
-                dimensions: { width: 175, height: 145 },
-                imageUrl: "https://i.ibb.co/4TjHqgP"
-            },
-            {
-                id: 6,
-                title: "Wood Pattern 7",
-                writeup: "This segment displays the natural concentric pattern of tree growth.",
-                dimensions: { width: 165, height: 155 },
-                imageUrl: "https://i.ibb.co/2Z58B6c"
-            },
-            {
-                id: 7,
-                title: "Wood Pattern 8",
-                writeup: "Angled wood grain patterns occur naturally as trees respond to environmental stresses.",
-                dimensions: { width: 185, height: 125 },
-                imageUrl: "https://i.ibb.co/VMy4kC5"
-            },
-            {
-                id: 8,
-                title: "Wood Pattern 9",
-                writeup: "The final segment shows a cross-sectional view of wood growth.",
-                dimensions: { width: 155, height: 165 },
-                imageUrl: "https://i.ibb.co/y4YmX08"
+        document.addEventListener('DOMContentLoaded', function() {
+            const segmentData = [
+                // NOTE: The 'dimensions' property has been removed.
+                // The imageUrls have been updated to direct image links.
+                { id: 0, title: "Wood Pattern 1", writeup: "This segment showcases a beautiful diagonal wood grain pattern.", imageUrl: "https://i.ibb.co/9v0F7v7/wood1.jpg" },
+                { id: 1, title: "Wood Pattern 2", writeup: "Classic horizontal wood planking reveals traditional construction.", imageUrl: "https://i.ibb.co/hK2j3xZ/wood2.jpg" },
+                { id: 2, title: "Wood Pattern 3", writeup: "Concentric circles represent the annual growth rings of a tree.", imageUrl: "https://i.ibb.co/T1jH1fJ/wood3.jpg" },
+                { id: 3, title: "Wood Pattern 4", writeup: "Another perspective of tree growth rings.", imageUrl: "https://i.ibb.co/MPrDbX8/wood4.jpg" },
+                { id: 4, title: "Wood Pattern 5", writeup: "Uniform vertical wood slats demonstrate precision woodworking.", imageUrl: "https://i.ibb.co/4Zg7QY7/wood5.jpg" },
+                { id: 5, title: "Wood Pattern 6", writeup: "The chevron or V-shaped pattern in wood grain creates visual interest.", imageUrl: "https://i.ibb.co/yQvQJ0Y/wood6.jpg" },
+                { id: 6, title: "Wood Pattern 7", writeup: "This segment displays the natural concentric pattern of tree growth.", imageUrl: "https://i.ibb.co/Fqsx1M6/wood7.jpg" },
+                { id: 7, title: "Wood Pattern 8", writeup: "Angled wood grain patterns occur naturally as trees respond to stress.", imageUrl: "https://i.ibb.co/YhWfJc9/wood8.jpg" },
+                { id: 8, title: "Wood Pattern 9", writeup: "The final segment shows a cross-sectional view of wood growth.", imageUrl: "https://i.ibb.co/98rSj2K/wood9.jpg" }
+            ];
+
+            let positionedSegments = 0;
+            const segmentPositions = new Array(9).fill(false);
+
+            const modal = document.getElementById('segmentModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalText = document.getElementById('modalText');
+            const closeBtn = document.getElementsByClassName('close')[0];
+
+            function shuffle(array) {
+                let currentIndex = array.length;
+                while (currentIndex > 0) {
+                    let randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex--;
+                    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+                }
+                return array;
             }
-        ];
 
-        // State tracking
-        let positionedSegments = 0;
-        const segmentPositions = new Array(9).fill(false);
-
-        // Modal elements
-        const modal = document.getElementById('segmentModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalText = document.getElementById('modalText');
-        const closeBtn = document.getElementsByClassName('close')[0];
-        const completionMessage = document.getElementById('completionMessage');
-
-        // Fisher-Yates (aka Knuth) Shuffle to randomize the array
-        function shuffle(array) {
-            let currentIndex = array.length, randomIndex;
-            while (currentIndex > 0) {
-                randomIndex = Math.floor(Math.random() * currentIndex);
-                currentIndex--;
-                [array[currentIndex], array[randomIndex]] = [
-                    array[randomIndex], array[currentIndex]];
+            // Function to load an image and return its dimensions
+            function loadImage(segment) {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.src = segment.imageUrl;
+                    img.onload = () => {
+                        // Add the loaded dimensions to the segment object
+                        segment.width = img.naturalWidth;
+                        segment.height = img.naturalHeight;
+                        resolve(segment);
+                    };
+                    img.onerror = () => reject(new Error(`Could not load image: ${segment.imageUrl}`));
+                });
             }
-            return array;
-        }
 
+            async function initializeArtifact() {
+                shuffle(segmentData);
+                
+                // Load all images and get their dimensions before proceeding
+                const loadedSegments = await Promise.all(segmentData.map(loadImage));
 
-        // Initialize puzzle
-        function initializePuzzle() {
-            shuffle(segmentData);
-            
-            const container = document.getElementById('puzzleContainer');
-            const gridContainer = document.querySelector('.grid-container');
-            const gridRect = gridContainer.getBoundingClientRect();
-            const containerRect = container.getBoundingClientRect();
+                const container = document.getElementById('puzzleContainer');
+                const gridContainer = document.querySelector('.grid-container');
+                const containerRect = container.getBoundingClientRect();
 
-            segmentData.forEach((segment, index) => {
-                const segmentDiv = document.createElement('div');
-                segmentDiv.className = 'wood-segment';
-                segmentDiv.id = `segment-${segment.id}`;
-                segmentDiv.dataset.segmentId = segment.id;
-                segmentDiv.style.width = segment.dimensions.width + 'px';
-                segmentDiv.style.height = segment.dimensions.height + 'px';
-                segmentDiv.style.backgroundImage = `url(${segment.imageUrl})`;
+                loadedSegments.forEach((segment, index) => {
+                    const segmentDiv = document.createElement('div');
+                    segmentDiv.className = 'wood-segment';
+                    segmentDiv.id = `segment-${segment.id}`;
+                    segmentDiv.style.width = segment.width + 'px';
+                    segmentDiv.style.height = segment.height + 'px';
+                    segmentDiv.style.backgroundImage = `url(${segment.imageUrl})`;
 
-                let validPosition = false;
-                let attempts = 0;
-                while (!validPosition && attempts < 50) {
-                    const x = Math.random() * (containerRect.width - segment.dimensions.width);
-                    const y = Math.random() * (containerRect.height - segment.dimensions.height);
-                    
-                    const gridLeft = gridRect.left - containerRect.left - 50;
-                    const gridRight = gridRect.right - containerRect.left + 50;
-                    const gridTop = gridRect.top - containerRect.top - 50;
-                    const gridBottom = gridRect.bottom - containerRect.top + 50;
-                    
-                    if (x + segment.dimensions.width < gridLeft || x > gridRight || 
-                        y + segment.dimensions.height < gridTop || y > gridBottom) {
-                        segmentDiv.style.left = x + 'px';
-                        segmentDiv.style.top = y + 'px';
-                        validPosition = true;
+                    // Position the segments randomly outside the central grid
+                    const gridRect = gridContainer.getBoundingClientRect();
+                    let validPosition = false;
+                    let attempts = 0;
+                    while (!validPosition && attempts < 50) {
+                        const x = Math.random() * (containerRect.width - segment.width);
+                        const y = Math.random() * (containerRect.height - segment.height);
+                        
+                        const gridLeft = gridRect.left - containerRect.left;
+                        const gridRight = gridRect.right - containerRect.left;
+                        const gridTop = gridRect.top - containerRect.top;
+                        const gridBottom = gridRect.bottom - containerRect.top;
+                        
+                        // Check for overlap with a slightly expanded grid area
+                        if (x + segment.width < gridLeft - 10 || x > gridRight + 10 || 
+                            y + segment.height < gridTop - 10 || y > gridBottom + 10) {
+                            segmentDiv.style.left = x + 'px';
+                            segmentDiv.style.top = y + 'px';
+                            validPosition = true;
+                        }
+                        attempts++;
                     }
-                    attempts++;
+
+                    // Fallback positioning if a valid random spot isn't found
+                    if (!validPosition) {
+                        segmentDiv.style.left = (20 + (index * 20)) + 'px';
+                        segmentDiv.style.top = (20 + (index * 20)) + 'px';
+                    }
+
+                    segmentDiv.addEventListener('click', () => handleSegmentClick(segment));
+                    container.appendChild(segmentDiv);
+                });
+            }
+
+            function handleSegmentClick(segment) {
+                modalTitle.textContent = segment.title;
+                modalText.textContent = segment.writeup;
+                modal.style.display = 'block';
+
+                if (!segmentPositions[segment.id]) {
+                    moveToGridPosition(segment);
+                }
+            }
+
+            function moveToGridPosition(segment) {
+                const segmentDiv = document.getElementById(`segment-${segment.id}`);
+                if (!segmentDiv) return;
+
+                const gridContainer = document.querySelector('.grid-container');
+                const gridRect = gridContainer.getBoundingClientRect();
+                const containerRect = document.getElementById('puzzleContainer').getBoundingClientRect();
+                
+                const row = Math.floor(segment.id / 3);
+                const col = segment.id % 3;
+                const cellWidth = gridRect.width / 3;
+                const cellHeight = gridRect.height / 3;
+
+                // Center the segment within its target grid cell
+                const targetX = (gridRect.left - containerRect.left) + (col * cellWidth) + (cellWidth - segment.width) / 2;
+                const targetY = (gridRect.top - containerRect.top) + (row * cellHeight) + (cellHeight - segment.height) / 2;
+
+                segmentDiv.style.left = targetX + 'px';
+                segmentDiv.style.top = targetY + 'px';
+                segmentDiv.classList.add('positioned');
+                
+                if (!segmentPositions[segment.id]) {
+                    segmentPositions[segment.id] = true;
+                    positionedSegments++;
                 }
 
-                if (!validPosition) {
-                    segmentDiv.style.left = (50 + (index * 30)) + 'px';
-                    segmentDiv.style.top = (50 + (index * 20)) + 'px';
+                if (positionedSegments === 9) {
+                    console.log("All segments positioned!");
                 }
-
-                segmentDiv.addEventListener('click', () => handleSegmentClick(segment.id));
-                container.appendChild(segmentDiv);
-            });
-        }
-
-        // Handle segment click
-        function handleSegmentClick(segmentId) {
-            const segment = segmentData.find(s => s.id === segmentId);
-            modalTitle.textContent = segment.title;
-            modalText.textContent = segment.writeup;
-            modal.style.display = 'block';
-            if (!segmentPositions[segmentId]) {
-                moveToGridPosition(segmentId);
             }
-        }
-
-        // Move segment to grid position
-        function moveToGridPosition(segmentId) {
-            const segmentDiv = document.getElementById(`segment-${segmentId}`);
-            const gridContainer = document.querySelector('.grid-container');
-            const gridRect = gridContainer.getBoundingClientRect();
-            const containerRect = document.getElementById('puzzleContainer').getBoundingClientRect();
-            const segment = segmentData.find(s => s.id === segmentId);
-            const row = Math.floor(segmentId / 3);
-            const col = segmentId % 3;
-            const cellWidth = gridRect.width / 3;
-            const cellHeight = gridRect.height / 3;
-            const targetX = (gridRect.left - containerRect.left) + (col * cellWidth) + (cellWidth - segment.dimensions.width) / 2;
-            const targetY = (gridRect.top - containerRect.top) + (row * cellHeight) + (cellHeight - segment.dimensions.height) / 2;
-
-            segmentDiv.style.left = targetX + 'px';
-            segmentDiv.style.top = targetY + 'px';
-            segmentDiv.classList.add('positioned');
-            segmentPositions[segmentId] = true;
-            positionedSegments++;
-
-            if (positionedSegments === 9) {
-                // You can add a completion message here if you want
-            }
-        }
-
-        // Modal event handlers
-        closeBtn.onclick = function() { modal.style.display = 'none'; }
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        window.onload = initializePuzzle;
-        window.onresize = function() {
-            segmentData.forEach(segment => {
-                if (segmentPositions[segment.id]) {
-                    const segmentDiv = document.getElementById(`segment-${segment.id}`);
-                    segmentDiv.classList.remove('positioned');
-                    setTimeout(() => {
-                        moveToGridPosition(segment.id);
-                    }, 100);
+            
+            closeBtn.onclick = function() { modal.style.display = 'none'; }
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
                 }
-            });
-        };
+            }
+
+            window.onresize = function() {
+                segmentData.forEach(segment => {
+                    if (segmentPositions[segment.id]) {
+                        moveToGridPosition(segment);
+                    }
+                });
+            };
+
+            initializeArtifact();
+        });
     </script>
 </body>
 </html>
